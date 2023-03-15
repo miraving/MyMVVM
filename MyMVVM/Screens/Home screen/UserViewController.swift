@@ -29,18 +29,33 @@ final class UserViewController: BaseViewController<UserViewModel> {
             make.left.greaterThanOrEqualTo(8)
         }
         resultLabel.numberOfLines = 0
-        resultLabel.textColor = .black
     }
     
     private func binding() {
-        viewModel.model
-            .subscribe { [weak self] user in
-                self?.updateUI(model: user)
+        viewModel.$model
+            .sink { [weak self] model in
+                self?.updateUI(model: model)
             }
-            .disposed(by: disposeBag)
+            .store(in: &subscriptions)
     }
     
-    private func updateUI(model: User) {
-        resultLabel.text = String(describing: model)
+    private func updateUI(model: User?) {
+        guard let model else {
+            resultLabel.text = ""
+            return
+        }
+        var result = ""
+        if let value = model.name {
+            result.append("name: \(value)")
+        }
+        if let value = model.login {
+            result.append("\n")
+            result.append("nickname: \(value)")
+        }
+        if let value = model.url {
+            result.append("\n")
+            result.append("url: \(value)")
+        }
+        resultLabel.text = result
     }
 }

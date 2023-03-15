@@ -7,8 +7,7 @@
 
 import UIKit
 import SnapKit
-import RxSwift
-import RxCocoa
+import Combine
 
 enum ControllerState {
     case loading, showContent, showError(String?)
@@ -18,7 +17,7 @@ class BaseViewController<ViewModel: BaseViewModel>: UIViewController {
     private var errorLabel = UILabel(frame: .zero)
     private var activityView = UIActivityIndicatorView(style: .large)
     
-    var disposeBag = DisposeBag()
+    var subscriptions = Set<AnyCancellable>()
     var viewModel: ViewModel!
     
     
@@ -44,13 +43,13 @@ class BaseViewController<ViewModel: BaseViewModel>: UIViewController {
     }
     
     private func mainInitialization() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         view.addSubview(activityView)
         activityView.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
-        activityView.color = .red
+        activityView.color = UIColor(named: "AccentColor")
         
         view.addSubview(errorLabel)
         errorLabel.snp.makeConstraints { make in
@@ -62,11 +61,11 @@ class BaseViewController<ViewModel: BaseViewModel>: UIViewController {
     }
 
     private func binding() {
-        viewModel.controllerState
-            .subscribe(onNext: { [weak self] state in
-                self?.updateState(state: state)
-            })
-            .disposed(by: disposeBag)
+        viewModel.$controllerState
+            .sink { state in
+                self.updateState(state: state)
+            }
+            .store(in: &subscriptions)
     }
     
     private func updateState(state: ControllerState) {

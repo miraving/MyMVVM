@@ -1,17 +1,11 @@
 //
-//  BaseViewModel.swift
+//  User.swift
 //  MyMVVM
 //
-//  Created by Vitalii on 15.12.2022.
+//  Created by Vitalii on 15.03.2023.
 //
 
 import Foundation
-import RxSwift
-import RxCocoa
-
-class BaseViewModel {
-    var controllerState = PublishSubject<ControllerState>()
-}
 
 struct User: Decodable {
     var id: Int
